@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+
+  wpmongo:
+    container_name: webprotege-mongodb
+    image: mongo:4.4
+    platform: linux/amd64
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - webprotege-net
+
+  webprotege:
+    container_name: webprotege
+    image: protegeproject/webprotege
+    platform: linux/amd64
+    depends_on:
+      - wpmongo
+    restart: unless-stopped
+    environment:
+      - webprotege.mongodb.host=wpmongo
+    volumes:
+      - protege-data:/srv/webprotege
+    ports:
+      - "5001:8080"
+    networks:
+      - webprotege-net
+
+volumes:
+  mongo-data:
+  protege-data:
+
+networks:
+  webprotege-net:
+    driver: bridge
